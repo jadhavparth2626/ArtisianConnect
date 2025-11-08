@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Artisans Connect</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/1Gd0f1P4/logo.png">
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #432818;
+            background-color: #fdfaf6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .bill-container {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #6f1d1b;
+        }
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.5rem; margin-top: 5px; color: #99582a; margin-bottom: 30px; }
+        .order-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #ddd;
+        }
+        .order-meta p { font-size: 0.9rem; }
+        .bill-header, .item-row {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr 1fr;
+            gap: 15px;
+            padding: 10px 0;
+            text-align: right;
+        }
+        .bill-header { font-weight: bold; border-bottom: 2px solid #432818; }
+        .item-row { border-bottom: 1px solid #eee; }
+        .item-row:last-child { border-bottom: none; }
+        .item-name { text-align: left; }
+        .bill-total {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px solid #432818;
+            text-align: right;
+        }
+        .bill-total p {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            background: #6f1d1b;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #bb9457; }
+    </style>
+</head>
+<body>
+    <div class="bill-container">
+        <h1>Thank You For Your Order!</h1>
+        <h2>Order Details (Bill)</h2>
+        <div id="order-details">
+            <p>Loading your bill...</p>
+        </div>
+    </div>
+    <a href="index.html" class="btn">Back to Shop</a>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const orderDetailsContainer = document.getElementById('order-details');
+        const API_BASE_URL = 'http://localhost:3000';
+
+        const orderId = new URLSearchParams(window.location.search).get('id');
+        const token = localStorage.getItem('authToken');
+
+        if (!orderId || !token) {
+            document.body.innerHTML = '<h1>Invalid Order or Not Logged In</h1>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                throw new Error('Could not find your order.');
+            }
+            
+            const order = await response.json();
+            
+            // 1. Create the item rows
+            const itemRows = order.items.map(item => `
+                <div class="item-row">
+                    <span class="item-name">${item.name}</span>
+                    <span>${item.quantity}</span>
+                    <span>₹${item.price.toFixed(2)}</span>
+                    <span>₹${(item.quantity * item.price).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            // 2. Assemble the final bill HTML
+            orderDetailsContainer.innerHTML = `
+                <div class="order-meta">
+                    <p><strong>Order ID:</strong> #${order._id.slice(-8)}</p>
+                    <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
+                </div>
+                <div class="bill-header">
+                    <span class="item-name">Product</span>
+                    <span>Qty</span>
+                    <span>Price</span>
+                    <span>Subtotal</span>
+                </div>
+                <div class="bill-items">
+                    ${itemRows}
+                </div>
+                <div class="bill-total">
+                    <p>Total: ₹${order.totalAmount.toFixed(2)}</p>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Error fetching order:', error);
+            orderDetailsContainer.innerHTML = `<p style="color: red; text-align: center;">${error.message}</p>`;
+        }
+    });
+</script>
+</body>
+</html>

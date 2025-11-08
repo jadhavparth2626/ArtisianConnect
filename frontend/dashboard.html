@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - Artisans Connect</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/1Gd0f1P4/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* --- ADDED: Complete styling for the dashboard --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #432818;
+            background-color: #fdfaf6;
+        }
+        .hidden { display: none !important; }
+
+        /* Header */
+        .header {
+            background: #6f1d1b;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+        .header .logo img { height: 50px; }
+        .header a { color: white; text-decoration: none; }
+        .header .header-icons a { margin-left: 20px; font-size: 1.2rem; }
+        .header .header-icons a:hover { color: #bb9457; }
+
+        /* Main Layout */
+        main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        h1, h2 { color: #6f1d1b; }
+        h1 { text-align: center; margin-bottom: 40px; font-size: 2.5rem; }
+        h2 { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+
+        /* Form Styling */
+        #product-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #product-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .btn {
+            display: inline-block;
+            background: #6f1d1b;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .btn-secondary { background: #99582a; }
+        .form-actions { display: flex; gap: 10px; }
+
+        /* Item & Order Card Styling */
+        .item-list { display: flex; flex-direction: column; gap: 15px; }
+        .item-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .item-image {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .item-details { flex-grow: 1; }
+        .item-details h3 { font-size: 1.1rem; }
+        .item-details p { color: #555; }
+        .item-details ul { list-style-position: inside; padding-left: 5px; }
+        .item-actions button {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f7f7f7;
+            transition: background 0.2s;
+        }
+        .item-actions button:hover { background: #eee; }
+        .btn-delete { color: #c0392b; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            main { grid-template-columns: 1fr; }
+            #product-management { grid-row: 2; } /* Move form below lists on mobile */
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="https://i.ibb.co/1Gd0f1P4/logo.png" alt="Artisans Connect Logo">
+        </a>
+        <div class="header-icons">
+            <a href="index.html" title="Back to Shop"><i class="fas fa-store"></i></a>
+            <a href="#" id="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </header>
+
+    <h1>Seller Dashboard</h1>
+    
+    <main>
+        <div id="product-management">
+             <section>
+                <h2 id="form-title">Add New Product</h2>
+                <form id="product-form">
+                    <input type="hidden" id="product-id">
+                    <div>
+                        <label for="name">Product Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div>
+                        <label for="image">Image URL:</label>
+                        <input type="url" id="image" name="image" required>
+                    </div>
+                    <div>
+                        <label for="price">Price (₹):</label>
+                        <input type="number" id="price" name="price" step="0.01" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Product</button>
+                        <button type="button" id="cancel-edit-btn" class="btn btn-secondary hidden">Cancel Edit</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+       
+        <div id="lists-container">
+             <section id="my-products">
+                <h2>My Products</h2>
+                <div id="my-products-list" class="item-list">
+                    <p>Loading products...</p>
+                </div>
+            </section>
+    
+            <section id="incoming-orders" style="margin-top: 40px;">
+                <h2>Incoming Orders</h2>
+                <div id="incoming-orders-list" class="item-list">
+                    <p>Loading orders...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Your JavaScript code is already correct and requires no changes.
+        // It will now work with the added HTML elements.
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Authentication and Authorization Check ---
+            const token = localStorage.getItem('authToken');
+            const API_BASE_URL = 'http://localhost:3000';
+
+            // Helper function to decode JWT and get user info
+            function getUserInfo(token) {
+                if (!token) return null;
+                try {
+                    return JSON.parse(atob(token.split('.')[1])).user;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            const userInfo = getUserInfo(token);
+
+            // If no token or user is not a seller, redirect to the homepage
+            if (!userInfo || userInfo.role !== 'seller') {
+                alert('Access denied. You must be logged in as a seller to view this page.');
+                window.location.href = 'index.html';
+                return; // Stop executing the rest of the script
+            }
+
+            // --- DOM Elements ---
+            const productsContainer = document.getElementById('my-products-list');
+            const ordersContainer = document.getElementById('incoming-orders-list');
+            const productForm = document.getElementById('product-form');
+            const formTitle = document.getElementById('form-title');
+            const productIdInput = document.getElementById('product-id');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // --- Reusable API Fetch Function ---
+            async function apiCall(endpoint, method = 'GET', body = null) {
+                const options = {
+                    method,
+                    headers: { 'Authorization': `Bearer ${token}` }
+                };
+                if (body) {
+                    options.headers['Content-Type'] = 'application/json';
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                
+                const responseData = await response.json();
+                if (!response.ok) {
+                    throw new Error(responseData.msg || 'An API error occurred.');
+                }
+                return responseData;
+            }
+
+            // --- Product Management ---
+            async function fetchMyProducts() {
+                try {
+                    const allProducts = await apiCall('/api/products');
+                    const myProducts = allProducts.filter(p => p.seller._id === userInfo.id);
+                    renderProducts(myProducts);
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    productsContainer.innerHTML = `<p class="error">Could not load your products. ${error.message}</p>`;
+                }
+            }
+
+            function renderProducts(products) {
+                productsContainer.innerHTML = '';
+                if (products.length === 0) {
+                    productsContainer.innerHTML = '<p>You have not added any products yet.</p>';
+                    return;
+                }
+                products.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'item-card';
+                    productDiv.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="item-image">
+                        <div class="item-details">
+                            <h3>${product.name}</h3>
+                            <p class="price">₹${product.price}</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-edit" data-id="${product._id}" data-name="${product.name}" data-image="${product.image}" data-price="${product.price}">Edit</button>
+                            <button class="btn-delete" data-id="${product._id}">Delete</button>
+                        </div>
+                    `;
+                    productsContainer.appendChild(productDiv);
+                });
+            }
+
+            // --- Order Management ---
+            async function fetchSellerOrders() {
+                try {
+                    const orders = await apiCall('/api/orders');
+                    renderOrders(orders);
+                } catch (error) {
+                    console.error('Error fetching orders:', error);
+                    ordersContainer.innerHTML = `<p class="error">Could not load incoming orders. ${error.message}</p>`;
+                }
+            }
+
+            function renderOrders(orders) {
+                ordersContainer.innerHTML = '';
+                if (orders.length === 0) {
+                    ordersContainer.innerHTML = '<p>You have no incoming orders.</p>';
+                    return;
+                }
+                orders.forEach(order => {
+                    const orderDiv = document.createElement('div');
+                    orderDiv.className = 'item-card';
+                    const itemsHtml = order.items.map(item => `<li>${item.quantity} x ${item.name} (₹${item.price})</li>`).join('');
+                    
+                    orderDiv.innerHTML = `
+                        <div class="item-details">
+                            <h3>Order ID: ${order._id.slice(-6)}</h3>
+                            <p>Customer: ${order.user.username} (${order.user.email})</p>
+                            <p>Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
+                            <strong>Items:</strong>
+                            <ul>${itemsHtml}</ul>
+                        </div>
+                    `;
+                    ordersContainer.appendChild(orderDiv);
+                });
+            }
+
+            // --- Form Handling for Add/Update ---
+            productForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = productIdInput.value;
+                const productData = {
+                    name: document.getElementById('name').value,
+                    image: document.getElementById('image').value,
+                    price: parseFloat(document.getElementById('price').value)
+                };
+
+                try {
+                    if (id) {
+                        await apiCall(`/api/products/${id}`, 'PUT', productData);
+                        alert('Product updated successfully!');
+                    } else {
+                        await apiCall('/api/products', 'POST', productData);
+                        alert('Product added successfully!');
+                    }
+                    resetForm();
+                    fetchMyProducts();
+                } catch (error) {
+                    console.error('Error saving product:', error);
+                    alert('Error: ' + error.message);
+                }
+            });
+
+            function resetForm() {
+                productForm.reset();
+                productIdInput.value = '';
+                formTitle.textContent = 'Add New Product';
+                cancelEditBtn.classList.add('hidden');
+            }
+
+            cancelEditBtn.addEventListener('click', resetForm);
+
+            // --- Event Delegation for Edit/Delete Buttons ---
+            productsContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('btn-edit')) {
+                    formTitle.textContent = 'Edit Product';
+                    productIdInput.value = target.dataset.id;
+                    document.getElementById('name').value = target.dataset.name;
+                    document.getElementById('image').value = target.dataset.image;
+                    document.getElementById('price').value = target.dataset.price;
+                    cancelEditBtn.classList.remove('hidden');
+                    productForm.scrollIntoView({ behavior: 'smooth' });
+                } else if (target.classList.contains('btn-delete')) {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        deleteProduct(target.dataset.id);
+                    }
+                }
+            });
+            
+            async function deleteProduct(id) {
+                try {
+                    await apiCall(`/api/products/${id}`, 'DELETE');
+                    alert('Product deleted successfully!');
+                    fetchMyProducts();
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // --- Initial Data Load ---
+            fetchMyProducts();
+            fetchSellerOrders();
+        });
+    </script>
+</body>
+</html>

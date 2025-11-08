@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artisans Connect - Handmade Treasures</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="https://i.ibb.co/1Gd0f1P4/logo.png">
+  <style>
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+      color: #432818; 
+      background: #fff;
+    }
+
+    
+    .auth-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .auth-modal.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .auth-container {
+        background-color: #fff;
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        position: relative;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+    }
+
+    .auth-modal.visible .auth-container {
+        transform: scale(1);
+    }
+
+    .auth-container h2 {
+        color: #6f1d1b;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+    
+    .auth-container .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.8rem;
+        color: #888;
+        cursor: pointer;
+        transition: color 0.3s, transform 0.2s;
+    }
+
+    .auth-container .close-btn:hover {
+        color: #333;
+        transform: rotate(90deg);
+    }
+
+    .auth-container input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+    
+    .auth-container input:focus {
+      border-color: #bb9457;
+      box-shadow: 0 0 8px rgba(187,148,87,0.3);
+      outline: none;
+    }
+
+    .auth-container .btn {
+      width: 100%;
+      background: #6f1d1b;
+      color: white;
+      border: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    
+    .auth-container .btn:hover {
+      background: #bb9457;
+      transform: translateY(-2px);
+    }
+
+    .auth-container p {
+        margin-top: 1.5rem;
+        color: #555;
+    }
+
+    .auth-container p a {
+        color: #99582a;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    
+    .auth-container p a:hover {
+        text-decoration: underline;
+    }
+    
+    #auth-error {
+        color: #e74c3c;
+        margin-top: 1rem;
+        font-weight: bold;
+        min-height: 1.2em;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+
+    
+    .header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #6f1d1b; 
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      z-index: 1000;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .search-form {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 20px;
+    padding: 2px 5px;
+}
+.search-form input {
+    border: none;
+    outline: none;
+    padding: 8px 10px;
+    background: transparent;
+    color: #432818;
+    font-size: 0.9rem;
+}
+.search-form button {
+    background: none;
+    border: none;
+    color: #6f1d1b;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 8px;
+}
+
+    .logo img {
+      height: 90px;
+      width: 100px;
+    }
+
+    .nav-menu ul {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-menu ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-menu ul li a:hover {
+      color: #bb9457; 
+    }
+
+    .header-icons a {
+      color: white;
+      margin-left: 20px;
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .header-icons a:hover {
+      color: #bb9457;
+    }
+
+    
+    .hero {
+      margin-top: 80px; 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 100px 40px;
+      background: linear-gradient(to right, #ffe6a7, #fff); 
+      flex-wrap: wrap;
+    }
+
+    .hero-text {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .hero-text h1 {
+      font-size: 2.8rem;
+      color: #432818; 
+      margin-bottom: 20px;
+    }
+
+    .hero-text p {
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+      color: #432818;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #6f1d1b; 
+      color: white;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #bb9457;
+      transform: translateY(-2px);
+    }
+
+    .hero-image {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .hero-image img {
+      width: 48%;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.3s;
+    }
+
+    .hero-image img:hover {
+      transform: scale(1.05);
+    }
+
+    
+    .categories {
+      padding: 70px 40px;
+      text-align: center;
+      background: #ffe6a7; 
+    }
+
+    .categories h2 {
+      font-size: 2.2rem;
+      margin-bottom: 40px;
+      color: #6f1d1b;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+    }
+
+    .category-card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .category-card i {
+      font-size: 2rem;
+      color: #99582a; 
+      margin-bottom: 15px;
+    }
+
+    .category-card h3 {
+      margin-bottom: 10px;
+      color: #432818;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    }
+
+    
+    .products {
+      padding: 70px 40px;
+      text-align: center;
+      background: #fff;
+    }
+
+    .products h2 {
+      font-size: 2.2rem;
+      margin-bottom: 40px;
+      color: #6f1d1b;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+    }
+
+    .product-card {
+      background: #ffe6a7; 
+      border-radius: 12px;
+      padding: 20px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .product-card img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .product-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: #432818;
+    }
+
+    .product-card .price {
+      font-weight: bold;
+      color: #6f1d1b;
+      margin-bottom: 12px;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    }
+    
+    .footer {
+      background: #432818; 
+      color: #ffe6a7; 
+      padding: 60px 40px 30px;
+    }
+
+    .footer-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 50px;
+      max-width: 1200px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <a href="index.html" aria-label="Artisans Connect homepage">
+        <img src="https://i.ibb.co/1Gd0f1P4/logo.png" alt="Artisans Connect Logo" class="logo-img">
+      </a>
+    </div>
+
+    <nav class="nav-menu">
+      <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#products">Products</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li id="dashboard-link" class="hidden"><a href="dashboard.html">Seller Dashboard</a></li>
+      </ul>
+  </nav>
+  <div class="header-icons">
+    <form id="search-form" class="search-form">
+        <input type="search" id="search-input" placeholder="Search products...">
+        <button type="submit"><i class="fas fa-search"></i></button>
+    </form>
+    <div style="display: flex;margin-top: 5px;">
+      <a href="#" id="user-icon-btn"><i class="fas fa-user"></i></a>
+      <a href="cart.html" id="cart-icon-btn"><i class="fas fa-shopping-cart"></i></a>
+    </div>
+</div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <h1 id="welcome-heading">Empowering Villages, One Craft at a Time</h1>
+      <p id="welcome-message">Explore unique jewellery, toys, and wellness products handcrafted by rural artisans. Please log in or sign up to see our products.</p>
+      <a href="#products" class="btn protected-nav">Shop Now</a>
+    </div>
+    <div class="hero-image">
+      <img src="https://i.ibb.co/svWbw70Q/sample1.jpg" alt="Artisan Product 1">
+      <img src="https://i.ibb.co/HfmSSBj2/sample2.jpg" alt="Artisan Product 2">
+    </div>
+  </section>
+  
+  <section class="categories protected-section" id="products-categories">
+    <h2>Our Handcrafted Categories</h2>
+    <div class="category-grid">
+      <div class="category-card">
+        <i class="fas fa-gem"></i>
+        <h3>Ancient Jewellery</h3>
+        <p>Timeless handcrafted ornaments made with traditional designs.</p>
+      </div>
+      <div class="category-card">
+        <i class="fas fa-puzzle-piece"></i>
+        <h3>Handmade Toys</h3>
+        <p>Safe, eco-friendly toys designed by rural artisans for kids.</p>
+      </div>
+      <div class="category-card">
+        <i class="fas fa-spa"></i>
+        <h3>Grooming Essentials</h3>
+        <p>Natural self-care products rooted in village traditions.</p>
+      </div>
+      <div class="category-card">
+        <i class="fas fa-heartbeat"></i>
+        <h3>Medical Care</h3>
+        <p>Ayurvedic and herbal remedies trusted by generations.</p>
+      </div>
+    </div>
+  </section>
+  
+  <section class="products protected-section" id="products">
+    <h2>Featured Products</h2>
+    <div class="product-grid">
+      <div class="product-card" data-product-id="prod_001" data-name="Silver Tribal Necklace" data-price="1200" data-image="https://i.ibb.co/7dXNtX25/silver-tribal-necklace.jpg">
+        <img src="https://i.ibb.co/7dXNtX25/silver-tribal-necklace.jpg" alt="Silver Tribal Necklace">
+        <h3>Silver Tribal Necklace</h3>
+        <p class="price">₹1200</p>
+        <button class="btn add-to-cart-btn">Add to Cart</button>
+      </div>
+      <div class="product-card" data-product-id="prod_002" data-name="Wooden Folk Toy" data-price="450" data-image="https://i.ibb.co/6JVcd5Fm/wooden-folk-toy.jpg">
+        <img src="https://i.ibb.co/6JVcd5Fm/wooden-folk-toy.jpg" alt="Wooden Folk Toy">
+        <h3>Wooden Folk Toy</h3>
+        <p class="price">₹450</p>
+        <button class="btn add-to-cart-btn">Add to Cart</button>
+      </div>
+      <div class="product-card" data-product-id="prod_003" data-name="Organic Beard Oil" data-price="300" data-image="https://i.ibb.co/234dgQX1/organic-beard-oil.jpg">
+        <img src="https://i.ibb.co/234dgQX1/organic-beard-oil.jpg" alt="Organic Beard Oil">
+        <h3>Organic Beard Oil</h3>
+        <p class="price">₹300</p>
+        <button class="btn add-to-cart-btn">Add to Cart</button>
+      </div>
+      <div class="product-card" data-product-id="prod_004" data-name="Herbal Healing Balm" data-price="250" data-image="https://i.ibb.co/jPJP1WGM/herbal-healing-balm.jpg">
+        <img src="https://i.ibb.co/jPJP1WGM/herbal-healing-balm.jpg" alt="Herbal Healing Balm">
+        <h3>Herbal Healing Balm</h3>
+        <p class="price">₹250</p>
+        <button class="btn add-to-cart-btn">Add to Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+      <div class="footer-container">
+        <p style="color: #bb9457; text-align: center; width: 100%;">&copy; 2025 Artisans Connect | All Rights Reserved</p>
+      </div>
+  </footer>
+
+  <div class="auth-modal" id="auth-modal">
+    <div class="auth-container">
+        <span class="close-btn" id="close-auth-modal-btn">&times;</span>
+        
+        <form id="login-form" method="POST">
+            <h2>Login</h2>
+            <input type="email" id="login-email" name="email" placeholder="Email" required>
+            <input type="password" id="login-password" name="password" placeholder="Password" required>
+            <button type="submit" class="btn">Login</button>
+            <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+        </form>
+        
+        <form id="signup-form" class="hidden" method="POST">
+            <h2>Sign Up</h2>
+            <div style="text-align: left; margin-bottom: 1rem; font-weight: 500;">
+  <strong style="display:block; margin-bottom: 8px; font-size: 16px; color: #3a2c1a;">Register as:</strong>
+  
+  <label style="margin-right: 50px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+    <input type="radio" name="role" value="user" checked 
+           style="accent-color: #007bff; width: 16px; height: 16px; cursor: pointer;">
+    User
+  </label>
+  
+  <label style="font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+    <input type="radio" name="role" value="seller" 
+           style="accent-color: #007bff; width: 16px; height: 16px; cursor: pointer;">
+    Seller
+  </label>
+</div>
+
+            <input type="text" id="signup-username" name="username" placeholder="Username" required>
+            <input type="email" id="signup-email" name="email" placeholder="Email" required>
+            <input type="password" id="signup-password" name="password" placeholder="Password" required>
+            <button type="submit" class="btn">Sign Up</button>
+            <p>Already have an account? <a href="#" id="show-login">Log In</a></p>
+        </form>
+
+        <div id="auth-error"></div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const authModal = document.getElementById('auth-modal');
+    const userIconBtn = document.getElementById('user-icon-btn');
+    const closeAuthModalBtn = document.getElementById('close-auth-modal-btn');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const showSignupLink = document.getElementById('show-signup');
+    const showLoginLink = document.getElementById('show-login');
+    const authError = document.getElementById('auth-error');
+    const productGrid = document.querySelector('.product-grid');
+    const navMenuUl = document.querySelector('.nav-menu ul');
+    const allProtectedElements = document.querySelectorAll('.protected-section, #search-icon, #cart-icon-btn');
+    const searchForm = document.getElementById('search-form'); 
+    const searchInput = document.getElementById('search-input'); 
+ 
+    const API_BASE_URL = 'http://localhost:3000';
+    
+    
+            function openProfileDrawer() {
+                fetchAndDisplayProfile(); 
+                profileDrawer.classList.add('visible');
+                profileOverlay.classList.add('visible');
+            }
+
+            function closeProfileDrawer() {
+                profileDrawer.classList.remove('visible');
+                profileOverlay.classList.remove('visible');
+            }
+            
+    function openAuthModal() {
+        authError.textContent = '';
+        authModal.classList.add('visible');
+    }
+
+    function closeAuthModal() {
+        authModal.classList.remove('visible');
+    }
+    
+    
+    async function handleAuth(event, endpoint) {
+        event.preventDefault();
+        authError.textContent = '';
+        const form = event.target;
+        const body = {
+            email: form.email.value,
+            password: form.password.value
+        };
+        
+        if (endpoint === '/api/users/register') {
+            body.username = form.username.value;
+            body.role = form.querySelector('input[name="role"]:checked').value;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const result = await response.json();
+            
+            if (!response.ok) {
+                const errorMsg = result.msg || (result.errors ? result.errors[0].msg : 'An error occurred.');
+                throw new Error(errorMsg);
+            }
+
+            if (endpoint === '/api/users/register') {
+                alert('Registration successful! Please log in.');
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            } else if (endpoint === '/api/users/login') {
+                localStorage.setItem('authToken', result.token);
+                alert('Success! You are now logged in.');
+                window.location.reload();
+            }
+        } catch (error) {
+            authError.textContent = error.message;
+        }
+    }
+
+    function handleLogout() {
+        if (confirm('Are you sure you want to log out?')) {
+            localStorage.removeItem('authToken');
+            window.location.reload();
+        }
+    }
+
+    
+    function getUserInfo(token) {
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.user; 
+        } catch (e) {
+            console.error('Failed to decode token:', e);
+            localStorage.removeItem('authToken');
+            window.location.reload();
+            return null;
+        }
+    }
+
+    // --- Product and Cart Functions ---
+    async function fetchAndDisplayProducts() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/products`);
+            if (!response.ok) throw new Error('Could not fetch products.');
+            
+            const products = await response.json();
+            
+            productGrid.innerHTML = '';
+            if (products.length === 0) {
+                 productGrid.innerHTML = '<p>No products have been listed by sellers yet.</p>';
+                 return;
+            }
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+            
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Sold by: <strong>${product.seller.username}</strong></p>
+                    <p class="price">₹${product.price}</p>
+                    <button class="btn add-to-cart-btn" 
+                            data-product-id="${product._id}" 
+                            data-name="${product.name}" 
+                            data-price="${product.price}" 
+                            data-image="${product.image}">Add to Cart</button>
+                `;
+                productGrid.appendChild(productCard);
+            });
+            attachAddToCartListeners();
+
+        } catch (error) {
+            console.error('Failed to fetch products:', error);
+            productGrid.innerHTML = '<p>Could not load products. Please try again later.</p>';
+        }
+    }
+    
+    async function addToCart(productId, name, price, image) {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            alert('Please log in to add items to your cart.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/cart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ productId, name, price, image })
+            });
+
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.msg || 'Could not add item to cart.');
+            }
+            
+            alert(`✅ "${name}" has been added to your cart!`);
+
+        } catch (error) {
+            console.error('Add to cart error:', error);
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    async function searchAndDisplayProducts(query) {
+        productGrid.innerHTML = '<p>Searching...</p>';
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/products/search?q=${query}`);
+            if (!response.ok) throw new Error('Search failed.');
+            
+            const products = await response.json();
+            
+            productGrid.innerHTML = '';
+            if (products.length === 0) {
+                productGrid.innerHTML = `<p>No products found for "<strong>${query}</strong>".</p>`;
+                return;
+            }
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Sold by: <strong>${product.seller.username}</strong></p>
+                    <p class="price">₹${product.price}</p>
+                    <button class="btn add-to-cart-btn" data-product-id="${product._id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.image}">Add to Cart</button>
+                `;
+                productGrid.appendChild(productCard);
+            });
+            attachAddToCartListeners(); // Re-attach listeners to new buttons
+        } catch (error) {
+            console.error('Search error:', error);
+            productGrid.innerHTML = `<p>Error searching for products.</p>`;
+        }
+    }
+
+    // --- Main Initializer ---
+    function initializeApp() {
+        const token = localStorage.getItem('authToken');
+        const userInfo = getUserInfo(token);
+
+        let navLinks = '<li><a href="#home">Home</a></li>';
+
+        if (token && userInfo) {
+            // Logged-in view
+            navLinks += '<li><a href="#products">Products</a></li>';
+            navLinks += '<li><a href="#about-us">About Us</a></li>';
+            navLinks += '<li><a href="#contact-us">Contact-Us</a></li>';
+            if (userInfo.role === 'seller') {
+                navLinks += '<li><a href="dashboard.html">Seller Dashboard</a></li>';
+            }
+            navMenuUl.innerHTML = navLinks;
+
+            allProtectedElements.forEach(el => el.style.display = 'block');
+            fetchAndDisplayProducts();
+
+            userIconBtn.querySelector('i').className = 'fas fa-sign-out-alt';
+            userIconBtn.title = 'Logout';
+            userIconBtn.onclick = (e) => { e.preventDefault(); handleLogout(); };
+        } else {
+            // Logged-out view
+            navMenuUl.innerHTML = navLinks;
+            allProtectedElements.forEach(el => el.style.display = 'none');
+            productGrid.innerHTML = '<p>Please log in to view our products.</p>';
+
+            userIconBtn.querySelector('i').className = 'fas fa-user';
+            userIconBtn.title = 'Login / Sign Up';
+            userIconBtn.onclick = (e) => { e.preventDefault(); openAuthModal(); };
+        }
+    }
+
+    // --- Event Listeners ---
+    function attachAllEventListeners() {
+        closeAuthModalBtn.addEventListener('click', closeAuthModal);
+        authModal.addEventListener('click', (e) => { if (e.target === authModal) closeAuthModal(); });
+
+        showSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        });
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+
+        loginForm.addEventListener('submit', (e) => handleAuth(e, '/api/users/login'));
+        signupForm.addEventListener('submit', (e) => handleAuth(e, '/api/users/register'));
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                searchAndDisplayProducts(query);
+            } else {
+                fetchAndDisplayProducts();
+            }
+        });
+    }
+
+    function attachAddToCartListeners() {
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', () => {
+                const { productId, name, price, image } = newButton.dataset;
+                addToCart(productId, name, parseFloat(price), image);
+            });
+        });
+    }
+    
+    // --- Initial Load ---
+    attachAllEventListeners();
+    initializeApp();
+});
+</script>
+</body>
+</html>
